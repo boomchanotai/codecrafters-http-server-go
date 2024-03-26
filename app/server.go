@@ -32,19 +32,15 @@ func main() {
 
 	var res []byte
 	path := strings.Split(string(buff), " ")[1]
-	if path == "/" || strings.Contains(path, "echo") {
-		res = []byte("HTTP/1.1 200 OK\r\n")
+	if path == "/" {
+		res = []byte("HTTP/1.1 200 OK\r\n\r\n")
+	} else if strings.Contains(path, "echo") {
+		content := strings.Split(path, "/")[2]
+		contentSize := fmt.Sprintf("Content-Length: %d", len(content))
+		res = []byte("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n" + contentSize + "\r\n" + content + "\r\n")
 	} else {
 		res = []byte("HTTP/1.1 404 Not Found\r\n\r\n")
 	}
-
-	content := []byte(strings.Split(path, "/")[2])
-	contentType := []byte("Content-Type: text/plain\r\n")
-	contentSize := fmt.Sprintf("Content-Length: %d\r\n\r\n", len(content))
-	contentSizeBytes := []byte(contentSize)
-	res = append(res, contentType...)
-	res = append(res, contentSizeBytes...)
-	res = append(res, content...)
 
 	_, err = conn.Write(res)
 	if err != nil {
