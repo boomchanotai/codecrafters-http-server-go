@@ -1,13 +1,14 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net"
 	"os"
 	"strings"
 )
 
-func handleRequest(conn net.Conn) {
+func handleRequest(conn net.Conn, filesDirectory string) {
 	defer conn.Close()
 	buff := make([]byte, 1024)
 	_, err := conn.Read(buff)
@@ -30,7 +31,7 @@ func handleRequest(conn net.Conn) {
 		res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + userAgent)
 	} else if strings.Contains(path, "files") {
 		filePath := strings.TrimPrefix(path, "/files/")
-		if file, err := os.ReadFile("directory" + filePath); err == nil {
+		if file, err := os.ReadFile(filesDirectory + filePath); err == nil {
 			content := string(file)
 			header := fmt.Sprintf("200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d", len(content))
 			res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + content)
@@ -51,6 +52,9 @@ func handleRequest(conn net.Conn) {
 func main() {
 	fmt.Println("Logs from your program will appear here!")
 
+	filesDirectory := flag.String("directory", "", "Directory to serve files from")
+	flag.Parse()
+
 	l, err := net.Listen("tcp", "0.0.0.0:4221")
 	if err != nil {
 		fmt.Println("Failed to bind to port 4221")
@@ -64,7 +68,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		go handleRequest(conn)
+		go handleRequest(conn, *filesDirectory)
 	}
 
 }
