@@ -41,13 +41,12 @@ func handleRequest(conn net.Conn, filesDirectory string) {
 				res = []byte("HTTP/1.1 404 Not Found\r\n\r\n")
 			}
 		} else if method == "POST" {
-			// Get Body
 			body := strings.Split(string(buff), "\r\n\r\n")[1]
 			err := os.WriteFile(filesDirectory+filePath, []byte(body), 0644)
 			if err != nil {
 				res = []byte("HTTP/1.1 500 Internal Server Error\r\n\r\n")
 			} else {
-				res = []byte("HTTP/1.1 200 OK\r\n\r\n")
+				res = []byte("HTTP/1.1 201 OK\r\n\r\n")
 			}
 		}
 	} else {
