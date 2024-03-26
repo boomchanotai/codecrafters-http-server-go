@@ -33,7 +33,7 @@ func handleRequest(conn net.Conn, filesDirectory string) {
 		filePath := strings.TrimPrefix(path, "/files/")
 		if file, err := os.ReadFile(filesDirectory + filePath); err == nil {
 			content := string(file)
-			header := fmt.Sprintf("200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d", len(content))
+			header := fmt.Sprintf("200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: %d", len(content))
 			res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + content)
 		} else {
 			res = []byte("HTTP/1.1 404 Not Found\r\n\r\n")
