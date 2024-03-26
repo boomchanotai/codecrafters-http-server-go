@@ -45,7 +45,7 @@ func main() {
 	res = append(res, contentType...)
 	res = append(res, contentSizeBytes...)
 	res = append(res, content...)
-	res = append(res, []byte("\r\n")...)
+	res = append(res, []byte("\r\n\r\n")...)
 
 	_, err = conn.Write(res)
 	if err != nil {
