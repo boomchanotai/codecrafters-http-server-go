@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -29,7 +30,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	res := []byte("HTTP/1.1 200 OK\r\n\r\n")
+	var res []byte
+	path := strings.Split(string(buff), " ")[1]
+	if path == "/" {
+		res = []byte("HTTP/1.1 200 OK\r\n\r\n")
+	} else {
+		res = []byte("HTTP/1.1 404 Not Found\r\n\r\n")
+	}
+
 	_, err = conn.Write(res)
 	if err != nil {
 		fmt.Println("Error writing to connection: ", err.Error())
