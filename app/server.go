@@ -30,20 +30,13 @@ func handleRequest(conn net.Conn) {
 		res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + userAgent)
 	} else if strings.Contains(path, "files") {
 		filePath := strings.TrimPrefix(path, "/files/")
-		file, err := os.Open(filePath)
-		if err != nil {
-			fmt.Println("Error opening file: ", err.Error())
+		if file, err := os.ReadFile("directory" + filePath); err == nil {
+			content := string(file)
+			header := fmt.Sprintf("200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d", len(content))
+			res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + content)
+		} else {
+			res = []byte("HTTP/1.1 404 Not Found\r\n\r\n")
 		}
-		defer file.Close()
-
-		// Read file
-		fileInfo, _ := file.Stat()
-		fileSize := fileInfo.Size()
-		fileBytes := make([]byte, fileSize)
-		file.Read(fileBytes)
-
-		header := fmt.Sprintf("200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d", fileSize)
-		res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + string(fileBytes))
 	} else {
 		res = []byte("HTTP/1.1 404 Not Found\r\n\r\n")
 	}
