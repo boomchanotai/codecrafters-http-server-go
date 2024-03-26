@@ -32,12 +32,16 @@ func main() {
 
 	var res []byte
 	path := strings.Split(string(buff), " ")[1]
+	userAgent := strings.TrimPrefix(strings.Split(string(buff), "\r\n")[2], "User-Agent: ")
 	if path == "/" {
 		res = []byte("HTTP/1.1 200 OK\r\n\r\n")
 	} else if strings.Contains(path, "echo") {
 		body := strings.TrimPrefix(path, "/echo/")
 		header := fmt.Sprintf("200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d", len(body))
 		res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + body)
+	} else if path == "/user-agent" {
+		header := fmt.Sprintf("200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d", len(userAgent))
+		res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + userAgent)
 	} else {
 		res = []byte("HTTP/1.1 404 Not Found\r\n\r\n")
 	}
