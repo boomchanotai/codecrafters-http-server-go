@@ -30,13 +30,25 @@ func handleRequest(conn net.Conn, filesDirectory string) {
 		header := fmt.Sprintf("200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d", len(userAgent))
 		res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + userAgent)
 	} else if strings.Contains(path, "files") {
+		method := strings.Split(string(buff), " ")[0]
 		filePath := strings.TrimPrefix(path, "/files/")
-		if file, err := os.ReadFile(filesDirectory + filePath); err == nil {
-			content := string(file)
-			header := fmt.Sprintf("200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: %d", len(content))
-			res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + content)
-		} else {
-			res = []byte("HTTP/1.1 404 Not Found\r\n\r\n")
+		if method == "GET" {
+			if file, err := os.ReadFile(filesDirectory + filePath); err == nil {
+				content := string(file)
+				header := fmt.Sprintf("200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: %d", len(content))
+				res = []byte("HTTP/1.1 " + header + "\r\n\r\n" + content)
+			} else {
+				res = []byte("HTTP/1.1 404 Not Found\r\n\r\n")
+			}
+		} else if method == "POST" {
+			// Get Body
+			body := strings.Split(string(buff), "\r\n\r\n")[1]
+			err := os.WriteFile(filesDirectory+filePath, []byte(body), 0644)
+			if err != nil {
+				res = []byte("HTTP/1.1 500 Internal Server Error\r\n\r\n")
+			} else {
+				res = []byte("HTTP/1.1 200 OK\r\n\r\n")
+			}
 		}
 	} else {
 		res = []byte("HTTP/1.1 404 Not Found\r\n\r\n")
