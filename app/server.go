@@ -42,7 +42,7 @@ func handleRequest(conn net.Conn, filesDirectory string) {
 			}
 		} else if method == "POST" {
 			body := strings.Split(string(buff), "\r\n\r\n")[1]
-			err := os.WriteFile(filesDirectory+filePath, []byte(body), 0644)
+			err := os.WriteFile(filesDirectory+filePath, []byte(strings.Trim(body, "\x00")), 0644)
 			if err != nil {
 				res = []byte("HTTP/1.1 500 Internal Server Error\r\n\r\n")
 			} else {
